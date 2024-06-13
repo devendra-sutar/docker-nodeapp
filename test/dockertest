@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Maximum number of attempts to check the container status
+max_attempts=30
+current_attempt=0
+
+# Loop to check the container status
+while [ $current_attempt -lt $max_attempts ]; do
+    # Get the status of the container named 'nodecontainer'
+    container_status=$(sudo docker ps --format "{{.Names}}: {{.Status}}" | grep 'nodecontainer:')
+
+    # Check if the container is up
+    if [[ $container_status == *"Up"* ]]; then
+        echo "Containers are running!"
+        break
+    else
+        echo "Waiting for containers to be running..."
+        sleep 10  # Wait for 10 seconds before the next attempt
+        ((current_attempt++))
+    fi
+done
+
+# Check if the maximum number of attempts has been reached
+if [ $current_attempt -eq $max_attempts ]; then
+    echo "Containers did not start within the expected time."
+    exit 1
+fi
+
